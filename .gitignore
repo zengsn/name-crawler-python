@@ -121,3 +121,6 @@ Temporary Items
 .apdisk
 
 # Created by .ignore support plugin (hsz.mobi)
+
+*.jar
+hanlp.properties
