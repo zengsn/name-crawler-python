@@ -21,11 +21,13 @@ class TecentNewsSpider(CrawlSpider):
     #提取数据(生成Item)以及生成需要进一步处理的URL的Requst对象
     def parse_item(self, response):
         item = NamecrawlerspiderItem()
+        item['url'] = response.url
         item['date'] = response.url.split("/")[-2]
         item['title'] = response.selector.xpath('//title/text()').extract()
 
-        for text in response.selector.xpath("//div[@id='Cnt-Main-Article-QQ']/p/text()").extract():
-            item['article'] = text
+        item['article'] = response.selector.xpath("//div[@id='Cnt-Main-Article-QQ']/p/text()").extract()
+
+        #print item['article']
 
         #print item['date']
         return item

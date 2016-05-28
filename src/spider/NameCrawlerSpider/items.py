@@ -15,4 +15,5 @@ class NamecrawlerspiderItem(scrapy.Item):
     title = scrapy.Field()
     article = scrapy.Field()
     date = scrapy.Field()
+    url = scrapy.Field()
 
