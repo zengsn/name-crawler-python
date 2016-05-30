@@ -27,7 +27,5 @@ class TecentNewsSpider(CrawlSpider):
 
         item['article'] = response.selector.xpath("//div[@id='Cnt-Main-Article-QQ']/p/text()").extract()
 
-        #print item['article']
 
-        #print item['date']
         return item
