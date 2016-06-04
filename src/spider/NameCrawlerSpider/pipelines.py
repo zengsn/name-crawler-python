@@ -6,7 +6,10 @@
 # See: http://doc.scrapy.org/en/latest/topics/item-pipeline.html
 import pymongo
 
+import os
+import logging
 from scrapy.exceptions import DropItem
+from scrapy.conf import settings
 from processData import *
 
 
@@ -14,13 +17,20 @@ class NamecrawlerspiderPipeline(object):
 
     def __init__(self):
         self.data_result = []
-        startJVM(getDefaultJVMPath(),"-Djava.class.path=/Users/yangyunshen/name-crawler-python/src/spider/NameCrawlerSpider/hanlp-1.2.9.jar:/Users/yangyunshen/name-crawler-python/src/spider/NameCrawlerSpider","-Xms1g", "-Xmx1g")
+        jvm_path = '-Djava.class.path=' + os.getcwd() + '/HanLP/hanlp-1.2.9.jar:' + os.getcwd() + '/HanLP'
+        startJVM(getDefaultJVMPath(),jvm_path,"-Xms1g", "-Xmx1g")
         #建立一个connection
-        client = pymongo.MongoClient()
+        client = pymongo.MongoClient(settings['MONGODB_URI'])
         #获取数据库对象
-        db = client.SpiderData
+        db = client[settings['MONGODB_DB']]
         #获取数据库的collection(类似别的数据库中的'表')
-        self.collection = db.data
+        self.collection = db[settings['MONGODB_COLLECTION']]
+
+        logging.basicConfig(level=logging.DEBUG,
+                            format='%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s',
+                            datefmt='%a, %d %b %Y %H:%M:%S',
+                            filename='myspider.log',
+                            filemode='w')
 
 
     def process_item(self, item, spider):
@@ -29,8 +39,8 @@ class NamecrawlerspiderPipeline(object):
         has_article = True
         if len(item['article']) == 0:
             has_article = False
-            print '数据未通过'
-            #raise DropItem("Missing article from %s" %item['url'])
+            #print '数据未通过'
+            raise DropItem(u'Missing article from {0:s}'.format(item['url']))
         if has_article:
             for sentence in item['article']:
                 sentences.append((sentence.encode('utf-8')))
@@ -54,8 +64,10 @@ class NamecrawlerspiderPipeline(object):
 
             #写进数据库
             self.collection.insert(self.data_result)
-
             print ' %s 数据通过管道 ' %item['date']
+            message = "Item wrote to MongoDB database {0} {1}".format(settings['MONGODB_DB'], settings['MONGODB_COLLECTION'])
+            logging.debug(message)
+
         return item
 
     def close_spider(self, spider):
