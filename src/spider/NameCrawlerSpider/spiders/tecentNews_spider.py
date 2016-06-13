@@ -1,13 +1,18 @@
 # -*- coding: utf-8 -*-
 import scrapy
+import logging
 from scrapy.spiders import CrawlSpider, Rule
 from scrapy.linkextractors import LinkExtractor
 
 from NameCrawlerSpider.items import NamecrawlerspiderItem
 
+logger = logging.getLogger("tecentNews spider")
+
 class TecentNewsSpider(CrawlSpider):
     name = "tecent"
     allowed_domains = ["news.qq.com"]
+    website_possible_httpstatus_list = [403]
+    handle_httpstatus_list = [403]
     #启动时进行爬取的url列表.
     #后续的URL从初始的URL获取到得数据提取
     start_urls = ["http://news.qq.com/"]
@@ -20,12 +25,21 @@ class TecentNewsSpider(CrawlSpider):
     #每个初始url完成下载后生成的Response对象将会作为唯一参数传递给该函数,此方法负责解析返回的数据
     #提取数据(生成Item)以及生成需要进一步处理的URL的Requst对象
     def parse_item(self, response):
-        item = NamecrawlerspiderItem()
-        item['url'] = response.url
-        item['date'] = response.url.split("/")[-2]
-        item['title'] = response.selector.xpath('//title/text()').extract()
 
-        item['article'] = response.selector.xpath("//div[@id='Cnt-Main-Article-QQ']/p/text()").extract()
+        if response.body == "banned":
+            req = response.request
+            req.meta["change_proxy"] = True
+            yield req
+        else:
+            logger.info("got page: ")
+            #yield response.request
+
+            item = NamecrawlerspiderItem()
+            item['url'] = response.url
+            item['date'] = response.url.split("/")[-2]
+            item['title'] = response.selector.xpath('//title/text()').extract()
+
+            item['article'] = response.selector.xpath("//div[@id='Cnt-Main-Article-QQ']/p/text()").extract()
 
 
-        return item
+            yield item

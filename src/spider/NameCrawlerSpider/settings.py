@@ -50,9 +50,13 @@ COOKIES_ENABLED=False
 
 # Enable or disable downloader middlewares
 # See http://scrapy.readthedocs.org/en/latest/topics/downloader-middleware.html
-# DOWNLOADER_MIDDLEWARES = {
-#    'NameCrawlerSpider.middlewares.MyCustomDownloaderMiddleware': 543,
-# }
+DOWNLOADER_MIDDLEWARES = {
+    'scrapy.downloadermiddlewares.downloadtimeout.DownloadTimeoutMiddleware': 350,
+    'scrapy.contrib.downloadermiddleware.retry.RetryMiddleware': 351,
+    # put this middleware after RetryMiddleware
+    'NameCrawlerSpider.HttpProxyMiddleware.HttpProxyMiddleware': 543,
+}
+DOWNLOAD_TIMEOUT = 10
 
 # Enable or disable extensions
 # See http://scrapy.readthedocs.org/en/latest/topics/extensions.html
