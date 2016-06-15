@@ -23,6 +23,8 @@ class ProcessData(object):
                 'name': [],
                 'address': [],
                 'date': [],
+                'url' : [],
+                'from': [],
             }
             #添加提取规则
             self.name_compiled_rule = re.compile(r'.*?(?=/nr)')

@@ -53,6 +53,8 @@ class NamecrawlerspiderPipeline(object):
             # print '这是结果'
             # print data_result
             self.data_result['date'].append(item['date'])
+            self.data_result['url'].append(item['url'])
+            self.data_result['from'].append(item['data_from'])
 
             #把title article内的数据编码并输出
             # with open('/Users/yangyunshen/name-crawler-python/src/spider/item.json', 'a') as f:
