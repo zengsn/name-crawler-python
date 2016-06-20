@@ -52,9 +52,9 @@ COOKIES_ENABLED=False
 # See http://scrapy.readthedocs.org/en/latest/topics/downloader-middleware.html
 DOWNLOADER_MIDDLEWARES = {
     'scrapy.downloadermiddlewares.downloadtimeout.DownloadTimeoutMiddleware': 350,
-    'scrapy.contrib.downloadermiddleware.retry.RetryMiddleware': 351,
+    'scrapy.downloadermiddlewares.retry.RetryMiddleware': 351,
     # put this middleware after RetryMiddleware
-    'NameCrawlerSpider.HttpProxyMiddleware.HttpProxyMiddleware': 543,
+    # 'NameCrawlerSpider.HttpProxyMiddleware.HttpProxyMiddleware': 543,
 }
 DOWNLOAD_TIMEOUT = 10
 
@@ -93,3 +93,53 @@ ITEM_PIPELINES = {
 MONGODB_URI = 'mongodb://localhost:27017'
 MONGODB_DB = 'SpiderData'
 MONGODB_COLLECTION = 'data'
+
+
+#spider设置
+
+# ALLOWED_DOMAINS = ["news.qq.com", "news.sina.com.cn", 'www.chinanews.com',
+#                   'news.sohu.com', 'news.ifeng.com', 'www.cankaoxiaoxi.com',
+#                    'news.xinhuanet.com',
+#                   ]
+
+START_URLS = ["http://news.qq.com/", "http://news.sina.com.cn/", "http://www.chinanews.com",
+              "http://news.sohu.com", 'http://news.ifeng.com', 'http://www.cankaoxiaoxi.com',
+              "http://www.xinhuanet.com", "http://news.cctv.com",
+              ]
+
+#用正则表达式设置跟进哪些从页面中提取的链接
+ALLOW_URL = [r'http://news.qq.*', r'http://news.sina.*', r'http://www.chinanews.*',
+             r'http://news.sohu.*', r'http://news.ifeng.*', 'http://www.cankaoxiaoxi.*',
+             r'http://news.xinhuanet.*', r'http://news.cctv.*']
+
+#用正则表达式设置不跟进哪些从页面中提取的链接
+DENY_URL = [r'http://news.qq.com/original.*', r'http://.*shipin.*', r'http://.*video.*']
+
+#使用xpath规则来提取,格式为'爬取站点':xpath表达式
+#爬取站点需要一般为www.example.com中的'example'
+ARTICLE_XPATH = {
+            'qq':  "//div[@id='Cnt-Main-Article-QQ']/p/text()",
+            'sina': '//div[@id="artibody"]/p/text()',
+            'sina2': '//div[@id="artibody"]/p/span/text()',
+            'chinanews' : "//div[@class='left_zw']/p/text()",
+            'sohu': "//div[@itemprop='articleBody']/p/text()",
+            'sohu2': "//div[@id='contentText']/p/text()",
+            'ifeng': "//div[@id='main_content']/p/text()",
+            'ifeng2': "//div[@id='artical_real']/p/text()",
+            'cankaoxiaoxi': "//div[@id='ctrlfscont']/p/text()",
+            'xinhuanet': "//div[@class='article']/p/text()",
+            'cctv': '//div[@class="cnt_bd"]/p/text()',
+
+        }
+
+#有些网站里面的一部分文章需要另一种规则
+#目前只支持2种规则设置
+OTHER_XPATH_ALLOW = ['sina']
+
+#从news类页面url中提取时间的表达式
+#需要额外添加时格式为'爬取站点':re表达式
+DATE_RE = {
+    'default': r'/([\d-]+)/',
+    'xinhuanet': r'/([\d-]+)/(\d+)/',
+    'cctv': r'/([\d-]+)/(\d+)/(\d+)/',
+}
