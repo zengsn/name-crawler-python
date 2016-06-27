@@ -49,23 +49,18 @@ class NamecrawlerspiderPipeline(object):
             # for i in self.sentences: print i
             #
             data = ProcessData(sentences)
+            #返回的是一个列表,里面每一项都是字典
             self.data_result = data.process_data()
-            # print '这是结果'
-            # print data_result
-            self.data_result['date'].append(item['date'])
-            self.data_result['url'].append(item['url'])
-            self.data_result['from'].append(item['data_from'])
 
-            #把title article内的数据编码并输出
-            # with open('/Users/yangyunshen/name-crawler-python/src/spider/item.json', 'a') as f:
-            #     for key, values in self.data_result.items():
-            #         f.write(key + ':')
-            #         for value in values:
-            #             f.write(value + ',')
-            #         f.write( '\n')
+            print '--------'
+            print self.data_result
 
-            #写进数据库
-            self.collection.insert(self.data_result)
+            #添加字典其余项并写进数据库
+            for result in self.data_result:
+                result['records']['date'] = item['date']
+                result['records']['url'] = item['url']
+                result['records']['from'] = item['data_from']
+                self.collection.insert(result)
             print ' %s 数据通过管道 ' %item['date']
             message = "Item wrote to MongoDB database {0} {1}".format(settings['MONGODB_DB'], settings['MONGODB_COLLECTION'])
             logging.debug(message)

@@ -25,7 +25,7 @@ NEWSPIDER_MODULE = 'NameCrawlerSpider.spiders'
 # Configure a delay for requests for the same website (default: 0)
 # See http://scrapy.readthedocs.org/en/latest/topics/settings.html#download-delay
 # See also autothrottle settings and docs
-DOWNLOAD_DELAY=3
+# DOWNLOAD_DELAY=5
 # The download delay setting will honor only one of:
 #CONCURRENT_REQUESTS_PER_DOMAIN=16
 #CONCURRENT_REQUESTS_PER_IP=16
@@ -53,9 +53,12 @@ COOKIES_ENABLED=False
 DOWNLOADER_MIDDLEWARES = {
     'scrapy.downloadermiddlewares.downloadtimeout.DownloadTimeoutMiddleware': 350,
     'scrapy.downloadermiddlewares.retry.RetryMiddleware': 351,
+    'NameCrawlerSpider.random_user_agent.RandomUserAgentMiddleware': 400,
+    'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware': None,
     # put this middleware after RetryMiddleware
     # 'NameCrawlerSpider.HttpProxyMiddleware.HttpProxyMiddleware': 543,
 }
+
 DOWNLOAD_TIMEOUT = 10
 
 # Enable or disable extensions
@@ -88,6 +91,13 @@ ITEM_PIPELINES = {
 #HTTPCACHE_DIR='httpcache'
 #HTTPCACHE_IGNORE_HTTP_CODES=[]
 #HTTPCACHE_STORAGE='scrapy.extensions.httpcache.FilesystemCacheStorage'
+
+
+USER_AGENT_LIST = [
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36',
+    'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.517 Safari/537.36',
+]
+
 
 #mongodb的设置
 MONGODB_URI = 'mongodb://localhost:27017'
@@ -129,6 +139,7 @@ ARTICLE_XPATH = {
             'cankaoxiaoxi': "//div[@id='ctrlfscont']/p/text()",
             'xinhuanet': "//div[@class='article']/p/text()",
             'cctv': '//div[@class="cnt_bd"]/p/text()',
+            'jianshu': "//div[@class='show-content']/p/text()"
 
         }
 
@@ -142,4 +153,5 @@ DATE_RE = {
     'default': r'/([\d-]+)/',
     'xinhuanet': r'/([\d-]+)/(\d+)/',
     'cctv': r'/([\d-]+)/(\d+)/(\d+)/',
+    'jianshu': r'([\d.]+)\s[\d:]+',
 }
