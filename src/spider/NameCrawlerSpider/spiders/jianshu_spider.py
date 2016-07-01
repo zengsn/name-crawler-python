@@ -2,7 +2,6 @@
 import scrapy
 import logging
 import re
-from scrapy.http import Request
 from scrapy.spiders import CrawlSpider, Rule
 from scrapy.linkextractors import LinkExtractor
 from scrapy.conf import settings
