@@ -37,6 +37,8 @@ class FilterSamePage(object):
                 return item
             else:
                 raise DropItem('the page already has crawled')
+        else:
+            return item
 
 
 class NamecrawlerspiderPipeline(object):
@@ -67,11 +69,12 @@ class NamecrawlerspiderPipeline(object):
             raise DropItem(u'Missing article from {0:s}'.format(item['url']))
         if has_article:
             for sentence in item['article']:
-                sentences.append((sentence.encode('utf-8')))
+                sentences.append(sentence.encode('utf-8'))
 
             # print '这是句子'
-            # for i in self.sentences: print i
-            #
+            # for i in sentences:
+            #     print i
+
             data = ProcessData(sentences)
             # 返回的是一个列表,里面每一项都是字典
             self.data_result = data.process_data()
