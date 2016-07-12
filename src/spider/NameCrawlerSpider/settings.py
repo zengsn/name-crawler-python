@@ -131,27 +131,6 @@ ALLOW_URL = [r'http://news.qq.*', r'http://news.sina.*', r'http://www.chinanews.
 # 用正则表达式设置不跟进哪些从页面中提取的链接
 DENY_URL = [r'http://news.qq.com/original.*', r'http://.*shipin.*', r'http://.*video.*']
 
-# 使用xpath规则来提取,格式为'爬取站点':xpath表达式
-# 爬取站点需要一般为www.example.com中的'example'
-ARTICLE_XPATH = {
-    'qq': "//div[@id='Cnt-Main-Article-QQ']/p/text()",
-    'sina': '//div[@id="artibody"]/p/text()',
-    'sina2': '//div[@id="artibody"]/p/span/text()',
-    'chinanews': "//div[@class='left_zw']/p/text()",
-    'sohu': "//div[@itemprop='articleBody']/p/text()",
-    'sohu2': "//div[@id='contentText']/p/text()",
-    'ifeng': "//div[@id='main_content']/p/text()",
-    'ifeng2': "//div[@id='artical_real']/p/text()",
-    'cankaoxiaoxi': "//div[@id='ctrlfscont']/p/text()",
-    'xinhuanet': "//div[@class='article']/p/text()",
-    'cctv': '//div[@class="cnt_bd"]/p/text()',
-    'jianshu': "//div[@class='show-content']/p/text()"
-
-}
-
-# 有些网站里面的一部分文章需要另一种规则
-# 目前只支持2种规则设置
-OTHER_XPATH_ALLOW = ['sina']
 
 # 从news类页面url中提取时间的表达式
 # 需要额外添加时格式为'爬取站点':re表达式

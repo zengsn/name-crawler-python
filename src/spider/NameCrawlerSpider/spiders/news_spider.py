@@ -41,14 +41,7 @@ class NewsSpider(CrawlSpider):
     # 提取数据(生成Item)以及生成需要进一步处理的URL的Requst对象
     def parse_news_item(self, response):
 
-        # # 对应不同网站的提取规则
-        # article_xpath = settings['ARTICLE_XPATH']
-
         date_re = settings['DATE_RE']
-
-        # 有的网站才需要另一个规则
-        other_xpath_allow = ['sina']
-        # other_xpath_allow = ['sina']
 
         if response.body == "banned":
             req = response.request
@@ -73,7 +66,7 @@ class NewsSpider(CrawlSpider):
 
             item['title'] = response.selector.xpath('//title/text()').extract()
 
-            # 有些网站的文章路径不同,提取后检查article是否无内容或者内容过少,使用另一种提取规则
+            # 提取文章
             htmlarticle = HtmlArticle()
             item['article'] = htmlarticle.get_html_article(response.body)
 

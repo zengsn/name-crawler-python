@@ -1,7 +1,6 @@
 # -*- coding:utf-8 -*-
 import re
 import urllib2
-import sys
 from readability import Document
 
 
@@ -75,10 +74,6 @@ class HtmlArticle(object):
             return article_split[begin: len(article_split) - end]
 
 if __name__ == '__main__':
-    reload(sys)
-
-    sys.setdefaultencoding('utf-8')
-
     a = HtmlArticle()
 
     url = 'http://news.qq.com/a/20160711/012641.htm#p=1'

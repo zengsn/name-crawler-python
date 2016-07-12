@@ -7,6 +7,7 @@
 import pymongo
 
 import os
+import re
 import logging
 from scrapy.exceptions import DropItem
 from datetime import datetime, timedelta
@@ -44,7 +45,11 @@ class FilterSamePage(object):
 class NamecrawlerspiderPipeline(object):
     def __init__(self):
         self.data_result = []
-        jvm_path = '-Djava.class.path=' + os.getcwd() + '/HanLP/hanlp-1.2.9.jar:' + os.getcwd() + '/HanLP'
+        # 获取Hanlp目录下文件与配置
+        filename = self.getfile()
+        if not isinstance(filename, str):
+            logging.warning('the Hanlp file is not exist')
+        jvm_path = '-Djava.class.path=' + os.getcwd() + '/HanLP/' + filename + ':' + os.getcwd() + '/HanLP'
         startJVM(getDefaultJVMPath(), jvm_path, "-Xms1g", "-Xmx1g")
         # 建立一个connection
         client = pymongo.MongoClient(settings['MONGODB_URI'])
@@ -94,3 +99,13 @@ class NamecrawlerspiderPipeline(object):
 
     def close_spider(self, spider):
         shutdownJVM()
+
+    def getfile(self):
+        allfiles = os.listdir(os.getcwd() + '/HanLp')
+        r = re.compile(r'hanlp[-\d.]+jar')
+        for f in allfiles:
+            has_file = r.match(f)
+            if has_file:
+                return has_file.group()
+        return None
+
