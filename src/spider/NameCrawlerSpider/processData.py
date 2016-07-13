@@ -34,29 +34,29 @@ class ProcessData(object):
             traceback.print_exc()
         else:
             for sentence in self.cases:
-                # 存放提取名字结果的列表
-                name = []
+                # 存放提取地址结果的列表
+                address = []
                 # 检查是否匹配到了名字跟地址
-                # 每次匹配到名字就设置为true,匹配到地址时候取名字跟地址构造字典并把has_match设置为False
-                has_match_flag = False
+                # 先匹配地址,再匹配人名
+                has_match_address = False
                 for case in StandradTokenizer.segment(sentence):
                     hasName = self.name_compiled_rule.match(str(case))
                     hasAddress = self.address_compiled_rule.match(str(case))
                     if hasName:
                         # 如果名字的数据不重复,添加进结果
                         if hasName.group().strip() not in self.exist:
-                            has_match_flag = True
                             self.exist.add(hasName.group().strip())
-                            name.append(hasName.group().strip())
+                            # 匹配到名字前先匹配到地址
+                            if has_match_address:
+                                has_match_address = False
+                                self.result_list.append(
+                                    dict(name=hasName.group().strip(),
+                                         records=dict(address=address.pop(-1))))
                     if hasAddress:
                         # 如果地址的数据不重复,添加进结果
                         if hasAddress.group().strip() not in self.exist:
+                            has_match_address = True
                             self.exist.add(hasAddress.group().strip())
-                            # 在匹配到地址之前有匹配到了名字
-                            if has_match_flag:
-                                has_match_flag = False
-                                self.result_list.append(
-                                    dict(name=name.pop(-1),
-                                         records=dict(address=hasAddress.group().strip())))
+                            address.append(hasAddress.group().strip())
 
             return self.result_list

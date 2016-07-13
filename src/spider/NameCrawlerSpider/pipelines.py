@@ -73,8 +73,15 @@ class NamecrawlerspiderPipeline(object):
             # print '数据未通过'
             raise DropItem(u'Missing article from {0:s}'.format(item['url']))
         if has_article:
-            for sentence in item['article']:
-                sentences.append(sentence.encode('utf-8'))
+            for article in item['article']:
+                if isinstance(article, unicode) and len(article) > 200:
+                    paragraph = article.split(u'\u3002')
+                    for p in paragraph:
+                        sentences.append(p)
+                        # print p + '\n'
+                        # print '-'*16
+                else:
+                    sentences.append(article.encode('utf-8'))
 
             # print '这是句子'
             # for i in sentences:
@@ -108,4 +115,3 @@ class NamecrawlerspiderPipeline(object):
             if has_file:
                 return has_file.group()
         return None
-

@@ -31,10 +31,10 @@ class NewsSpider(CrawlSpider):
     deny_url = settings['DENY_URL']
 
     rules = [
-        # Rule(LinkExtractor(allow=allow_url, deny=deny_url), callback='parse_news_item', follow=True),
+        Rule(LinkExtractor(allow=allow_url, deny=deny_url), callback='parse_news_item', follow=True),
 
         # 这行留着添加新网站时去掉注释并注释上一个Rule方便在运行时观察测试
-        Rule(LinkExtractor(allow=(r'http://news.qq.com/a/\d+/.*?')), callback='parse_news_item', follow=True),
+        # Rule(LinkExtractor(allow=(r'http://news.qq.com/a/\d+/.*?')), callback='parse_news_item', follow=True),
     ]
 
     # 每个初始url完成下载后生成的Response对象将会作为唯一参数传递给该函数,此方法负责解析返回的数据
