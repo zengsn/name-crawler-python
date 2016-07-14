@@ -3,6 +3,8 @@ import re
 import urllib2
 from readability import Document
 
+# 当文字长度大于这变量的时候就认为是文章/文章的一段.
+IS_ARTICLE_SIZE = 60
 
 class HtmlArticle(object):
 
@@ -16,6 +18,7 @@ class HtmlArticle(object):
         response = r.sub('', response)
         r = re.compile(r'^\s+', re.M | re.S)
         response = r.sub('', response)
+        # 这里把多个换行符换成一个, 方便等下以换行符作为参数把内容分割
         r = re.compile(r'\n+', re.M | re.S)
         response = r.sub('\n', response)
         return response
@@ -49,7 +52,7 @@ class HtmlArticle(object):
 
             if not begin_find:
                 # 一项长度大于40的话就认为是文章的开头
-                if len(article_split[index]) > 60:
+                if len(article_split[index]) > IS_ARTICLE_SIZE:
                     begin = index
                     begin_find = True
                     has_article = True
@@ -57,8 +60,9 @@ class HtmlArticle(object):
             elif not end_find:
                 if len(article_split[-index - 1]) == 0:
                     continue
+                # \u3002\uff01分别对应中文的.跟? 因为一般中文句子结尾都是.跟?
                 elif article_split[-index - 1][-1] in u'\u3002\uff01':
-                    if len(article_split[-index - 1]) > 60:
+                    if len(article_split[-index - 1]) > IS_ARTICLE_SIZE:
                         end = index
                         end_find = True
                         has_article = True

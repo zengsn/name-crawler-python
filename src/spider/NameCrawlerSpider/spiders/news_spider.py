@@ -6,10 +6,10 @@ from ..htmlArticle import HtmlArticle
 from scrapy.spiders import CrawlSpider, Rule
 from scrapy.linkextractors import LinkExtractor
 from scrapy.conf import settings
-
+from logging.handlers import RotatingFileHandler
 from NameCrawlerSpider.items import NamecrawlerspiderItem
 
-logger = logging.getLogger("NewsSpider")
+logger = logging.getLogger(__name__)
 
 
 class NewsSpider(CrawlSpider):
@@ -17,7 +17,7 @@ class NewsSpider(CrawlSpider):
 
     # allowed_domains = settings['ALLOWED_DOMAINS']
 
-    website_possible_httpstatus_list = [403, 404]
+    website_possible_httpstatus_list = [403]
     handle_httpstatus_list = [403]
 
     # 启动时进行爬取的url列表.
@@ -31,11 +31,25 @@ class NewsSpider(CrawlSpider):
     deny_url = settings['DENY_URL']
 
     rules = [
-        Rule(LinkExtractor(allow=allow_url, deny=deny_url), callback='parse_news_item', follow=True),
+        # Rule(LinkExtractor(allow=allow_url, deny=deny_url), callback='parse_news_item', follow=True),
 
         # 这行留着添加新网站时去掉注释并注释上一个Rule方便在运行时观察测试
-        # Rule(LinkExtractor(allow=(r'http://news.qq.com/a/\d+/.*?')), callback='parse_news_item', follow=True),
+        Rule(LinkExtractor(allow=(r'http://news.qq.com/a/\d+/.*?')), callback='parse_news_item', follow=True),
     ]
+
+    logging.basicConfig(level=logging.DEBUG,
+                        format='%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s',
+                        datefmt='%a, %d %b %Y %H:%M:%S')
+
+    FILE = os.getcwd() + '/log/'
+
+    # 定义一个RotatingFileHandler，最多备份5个日志文件，每个日志文件最大10M
+    # 输出spider运行的日志
+    Rthandler = RotatingFileHandler(os.path.join(FILE, 'spider_log.txt'), maxBytes=10 * 1024 * 1024, backupCount=5)
+    Rthandler.setLevel(logging.WARNING)
+    formatter = logging.Formatter('%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s')
+    Rthandler.setFormatter(formatter)
+    logger.addHandler(Rthandler)
 
     # 每个初始url完成下载后生成的Response对象将会作为唯一参数传递给该函数,此方法负责解析返回的数据
     # 提取数据(生成Item)以及生成需要进一步处理的URL的Requst对象
@@ -43,9 +57,10 @@ class NewsSpider(CrawlSpider):
 
         date_re = settings['DATE_RE']
 
-        if response.body == "banned":
+        if response.status == 403:
             req = response.request
             req.meta["change_proxy"] = True
+            logging.warning('403 from {}, now change proxy'.format(response.url))
             yield req
         else:
             logger.info("got page: ")

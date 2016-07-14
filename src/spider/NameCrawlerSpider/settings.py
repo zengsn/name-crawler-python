@@ -23,7 +23,7 @@ NEWSPIDER_MODULE = 'NameCrawlerSpider.spiders'
 # Configure a delay for requests for the same website (default: 0)
 # See http://scrapy.readthedocs.org/en/latest/topics/settings.html#download-delay
 # See also autothrottle settings and docs
-DOWNLOAD_DELAY=6
+# DOWNLOAD_DELAY=6
 # The download delay setting will honor only one of:
 # CONCURRENT_REQUESTS_PER_DOMAIN=16
 # CONCURRENT_REQUESTS_PER_IP=16
@@ -127,6 +127,7 @@ START_URLS = ["http://news.qq.com/", "http://news.sina.com.cn/", "http://www.chi
 ALLOW_URL = [r'http://news.qq.*', r'http://news.sina.*', r'http://www.chinanews.*',
              r'http://news.sohu.*', r'http://news.ifeng.*', 'http://www.cankaoxiaoxi.*',
              r'http://news.xinhuanet.*', r'http://news.cctv.*']
+
 
 # 用正则表达式设置不跟进哪些从页面中提取的链接
 DENY_URL = [r'http://news.qq.com/original.*', r'http://.*shipin.*', r'http://.*video.*']

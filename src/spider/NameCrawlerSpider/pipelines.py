@@ -9,10 +9,13 @@ import pymongo
 import os
 import re
 import logging
+from logging.handlers import RotatingFileHandler
 from scrapy.exceptions import DropItem
 from datetime import datetime, timedelta
 from scrapy.conf import settings
 from processData import *
+
+logger = logging.getLogger(__name__)
 
 
 class FilterSamePage(object):
@@ -60,19 +63,29 @@ class NamecrawlerspiderPipeline(object):
 
         logging.basicConfig(level=logging.DEBUG,
                             format='%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s',
-                            datefmt='%a, %d %b %Y %H:%M:%S',
-                            filename='myspider.log',
-                            filemode='w')
+                            datefmt='%a, %d %b %Y %H:%M:%S')
+
+        FILE = os.getcwd() + '/log/'
+
+        # 定义一个RotatingFileHandler，最多备份5个日志文件，每个日志文件最大10M
+        # 将warning以上内容输出,方便用户查看什么网页内容抓取错误
+        Rthandler = RotatingFileHandler(os.path.join(FILE, 'pipeline_log.txt'), maxBytes=10 * 1024 * 1024,
+                                        backupCount=5)
+        Rthandler.setLevel(logging.WARNING)
+        formatter = logging.Formatter('%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s')
+        Rthandler.setFormatter(formatter)
+        logger.addHandler(Rthandler)
 
     def process_item(self, item, spider):
         sentences = []
-        # 如果article不存在数据则丢弃
-        has_article = True
+        # 如果article以及data不存在则丢弃,并输出到日志文件方便用户检查
         if len(item['article']) == 0:
-            has_article = False
             # print '数据未通过'
             raise DropItem(u'Missing article from {0:s}'.format(item['url']))
-        if has_article:
+        elif len(item['date']) == 0:
+            # logging.warning(u'the date from {} is empty'.format(item['url']))
+            raise DropItem(u'Missing date from {0:s}'.format(item['url']))
+        else:
             for article in item['article']:
                 if isinstance(article, unicode) and len(article) > 200:
                     paragraph = article.split(u'\u3002')
@@ -92,15 +105,18 @@ class NamecrawlerspiderPipeline(object):
             self.data_result = data.process_data()
 
             # 添加字典其余项并写进数据库
-            for result in self.data_result:
-                result['records']['date'] = item['date']
-                result['records']['url'] = item['url']
-                result['records']['from'] = item['data_from']
-                self.collection.insert(result)
-            print ' %s 数据通过管道 ' % item['date']
-            message = "Item wrote to MongoDB database {0} {1}".format(settings['MONGODB_DB'],
-                                                                      settings['MONGODB_COLLECTION'])
-            logging.debug(message)
+            try:
+                for result in self.data_result:
+                    result['records']['date'] = item['date']
+                    result['records']['url'] = item['url']
+                    result['records']['from'] = item['data_from']
+                    self.collection.insert(result)
+                print ' %s 数据通过管道 ' % item['date']
+                message = "Item wrote to MongoDB database {0} {1}".format(settings['MONGODB_DB'],
+                                                                          settings['MONGODB_COLLECTION'])
+                logging.debug(message)
+            except Exception, e:
+                logging.error('fail to write in database, the error is {}'.format(e))
 
         return item
 
