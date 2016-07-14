@@ -113,25 +113,30 @@ MONGODB_COLLECTION = 'data'
 
 # spider设置
 
-ALLOWED_DOMAINS = ["news.qq.com", "news.sina.com.cn", 'www.chinanews.com',
+ALLOWED_DOMAINS = ["news.qq.com", "news.sina.com.cn",
                   'news.sohu.com', 'news.ifeng.com', 'www.cankaoxiaoxi.com',
-                   'news.xinhuanet.com',
+                   'news.xinhuanet.com', ''
                   ]
 
-START_URLS = ["http://news.qq.com/", "http://news.sina.com.cn/", "http://www.chinanews.com",
+START_URLS = ["http://news.qq.com/", "http://news.sina.com.cn/",
               "http://news.sohu.com", 'http://news.ifeng.com', 'http://www.cankaoxiaoxi.com',
               "http://www.xinhuanet.com", "http://news.cctv.com",
               ]
 
 # 用正则表达式设置跟进哪些从页面中提取的链接
-ALLOW_URL = [r'http://news.qq.*', r'http://news.sina.*', r'http://www.chinanews.*',
-             r'http://news.sohu.*', r'http://news.ifeng.*', 'http://www.cankaoxiaoxi.*',
+ALLOW_URL = [r'http://news.qq.*', r'http://news.sina.*', r'http://news.sohu.*',
+             r'http://news.ifeng.*', 'http://www.cankaoxiaoxi.*',
              r'http://news.xinhuanet.*', r'http://news.cctv.*']
 
 
 # 用正则表达式设置不跟进哪些从页面中提取的链接
 DENY_URL = [r'http://news.qq.com/original.*', r'http://.*shipin.*', r'http://.*video.*']
 
+# 自定义从页面中提取时间. 格式与DATE_RE相同
+# 会优先检测这里
+DATE_RE_ARTICLE = {
+
+}
 
 # 从news类页面url中提取时间的表达式
 # 需要额外添加时格式为'爬取站点':re表达式

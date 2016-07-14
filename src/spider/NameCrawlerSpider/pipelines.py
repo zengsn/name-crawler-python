@@ -11,7 +11,6 @@ import re
 import logging
 from logging.handlers import RotatingFileHandler
 from scrapy.exceptions import DropItem
-from datetime import datetime, timedelta
 from scrapy.conf import settings
 from processData import *
 
@@ -24,23 +23,29 @@ class FilterSamePage(object):
     需要处理防止多次解析一样的内容.
     """
 
-    # 记录来自简书的页面
-    _jianshu_page = set()
-    # 运行一段时间后set内容会比较大,而且爬过的url不会重复被抓.需要清理
-    _clean_set_time = datetime.now()
+    # 页面一般是连续抓取,只需判断与上一条url末端数字大小.
+    _last_number = 0
+    _new_number = 0
+    # True时修改last_number,False时修改new_number
+    _last_or_new = True
 
     def process_item(self, item, spider):
-        if item['data_from'] == 'jianshu':
-            page_number = item['url'].split('/')[4]
-            if page_number not in FilterSamePage._jianshu_page:
-                # page_number不同表示爬取了新的页面,这时候检查下爬虫是否运行时间了一定的时间,清理集合
-                if datetime.now() > FilterSamePage._clean_set_time + timedelta(minutes=20):
-                    FilterSamePage._jianshu_page.clear()
-                FilterSamePage._jianshu_page.add(page_number)
 
-                return item
-            else:
+        result = re.findall(r'\d+', item['url'].split('/')[-1])
+        if len(result) > 0:
+            if FilterSamePage._last_or_new:
+                FilterSamePage._last_number = result[0]
+                FilterSamePage._last_or_new = False
+
+            elif not FilterSamePage._last_or_new:
+                FilterSamePage._new_number = result[0]
+                FilterSamePage._last_or_new = True
+
+            if abs(int(FilterSamePage._last_number) - int(FilterSamePage._new_number)) < 100:
+                # 可能相似页面
                 raise DropItem('the page already has crawled')
+            else:
+                return item
         else:
             return item
 
@@ -82,9 +87,9 @@ class NamecrawlerspiderPipeline(object):
         if len(item['article']) == 0:
             # print '数据未通过'
             raise DropItem(u'Missing article from {0:s}'.format(item['url']))
-        elif len(item['date']) == 0:
-            # logging.warning(u'the date from {} is empty'.format(item['url']))
-            raise DropItem(u'Missing date from {0:s}'.format(item['url']))
+        elif len(item['date']) <= 6:
+            # logging.warning(u'the date from {} maybe wrong'.format(item['url']))
+            raise DropItem(u'wrong date from {0:s}'.format(item['url']))
         else:
             for article in item['article']:
                 if isinstance(article, unicode) and len(article) > 200:

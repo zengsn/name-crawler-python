@@ -2,6 +2,7 @@
 import scrapy
 import logging
 import re
+import os
 from ..htmlArticle import HtmlArticle
 from scrapy.spiders import CrawlSpider, Rule
 from scrapy.linkextractors import LinkExtractor
@@ -31,10 +32,10 @@ class NewsSpider(CrawlSpider):
     deny_url = settings['DENY_URL']
 
     rules = [
-        # Rule(LinkExtractor(allow=allow_url, deny=deny_url), callback='parse_news_item', follow=True),
+        Rule(LinkExtractor(allow=allow_url, deny=deny_url), callback='parse_news_item', follow=True),
 
         # 这行留着添加新网站时去掉注释并注释上一个Rule方便在运行时观察测试
-        Rule(LinkExtractor(allow=(r'http://news.qq.com/a/\d+/.*?')), callback='parse_news_item', follow=True),
+        # Rule(LinkExtractor(allow=(r'http://news.qq.com/a/\d+/.*?')), callback='parse_news_item', follow=True),
     ]
 
     logging.basicConfig(level=logging.DEBUG,
@@ -55,7 +56,9 @@ class NewsSpider(CrawlSpider):
     # 提取数据(生成Item)以及生成需要进一步处理的URL的Requst对象
     def parse_news_item(self, response):
 
+        date_re_article = settings['DATE_RE_ARTICLE']
         date_re = settings['DATE_RE']
+        has_time = []
 
         if response.status == 403:
             req = response.request
@@ -70,14 +73,18 @@ class NewsSpider(CrawlSpider):
             item['data_from'] = response.url.split(".")[1]
 
             # 检查当前站点是否有另一种规则提取时间
-            if date_re.has_key(item['data_from']):
+            if date_re_article.haskey(item['data_from']):
+                has_time = re.findall(date_re_article.get(item['data_from']), response.url)
+            elif date_re.has_key(item['data_from']):
                 has_time = re.findall(date_re.get(item['data_from']), response.url)
-                if has_time:
-                    item['date'] = '-'.join(map(str, has_time[0]))
-                else:
-                    item['date'] = 'none'
             else:
                 item['date'] = re.findall(date_re.get('default'), response.url)  # 没有的话使用默认
+
+            if has_time:
+                item['date'] = '-'.join(map(str, has_time[0]))
+            else:
+                item['date'] = 'none'
+
 
             item['title'] = response.selector.xpath('//title/text()').extract()
 
