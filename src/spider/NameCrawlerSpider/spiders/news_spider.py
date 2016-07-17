@@ -59,6 +59,7 @@ class NewsSpider(CrawlSpider):
         date_re_article = settings['DATE_RE_ARTICLE']
         date_re = settings['DATE_RE']
         has_time = []
+        time_use_default = False
 
         if response.status == 403:
             req = response.request
@@ -73,17 +74,21 @@ class NewsSpider(CrawlSpider):
             item['data_from'] = response.url.split(".")[1]
 
             # 检查当前站点是否有另一种规则提取时间
-            if date_re_article.haskey(item['data_from']):
+            if date_re_article.has_key(item['data_from']):
                 has_time = re.findall(date_re_article.get(item['data_from']), response.url)
             elif date_re.has_key(item['data_from']):
                 has_time = re.findall(date_re.get(item['data_from']), response.url)
             else:
-                item['date'] = re.findall(date_re.get('default'), response.url)  # 没有的话使用默认
+                date = re.findall(date_re.get('default'), response.url)  # 没有的话使用默认
+                if len(date) > 0:
+                    item['date'] = date[0]
+                    time_use_default = True
 
             if has_time:
                 item['date'] = '-'.join(map(str, has_time[0]))
             else:
-                item['date'] = 'none'
+                if not time_use_default:
+                    item['date'] = 'none'
 
 
             item['title'] = response.selector.xpath('//title/text()').extract()

@@ -12,7 +12,7 @@ def setting(option):
 
 
 def runspider(spidername):
-    terminal = 'scrapy crawl {spidername} -s JOBDIR=crawls/{spidername}-1'.format(spidername=spidername)
+    terminal = 'scrapy crawl {spidername}'.format(spidername=spidername)
     return terminal
 
 

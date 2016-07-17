@@ -13,6 +13,8 @@ BOT_NAME = 'NameCrawlerSpider'
 
 SPIDER_MODULES = ['NameCrawlerSpider.spiders']
 NEWSPIDER_MODULE = 'NameCrawlerSpider.spiders'
+# JOBDIR='crawls/spider'
+
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 # USER_AGENT = 'NameCrawlerSpider (+http://www.yourdomain.com)'
@@ -114,19 +116,16 @@ MONGODB_COLLECTION = 'data'
 # spider设置
 
 ALLOWED_DOMAINS = ["news.qq.com", "news.sina.com.cn",
-                  'news.sohu.com', 'news.ifeng.com', 'www.cankaoxiaoxi.com',
-                   'news.xinhuanet.com', ''
+                  'news.sohu.com', 'news.ifeng.com', 'news.xinhuanet.com', ''
                   ]
 
 START_URLS = ["http://news.qq.com/", "http://news.sina.com.cn/",
-              "http://news.sohu.com", 'http://news.ifeng.com', 'http://www.cankaoxiaoxi.com',
-              "http://www.xinhuanet.com", "http://news.cctv.com",
+              "http://news.sohu.com", 'http://news.ifeng.com', "http://www.xinhuanet.com", "http://news.cctv.com",
               ]
 
 # 用正则表达式设置跟进哪些从页面中提取的链接
-ALLOW_URL = [r'http://news.qq.*', r'http://news.sina.*', r'http://news.sohu.*',
-             r'http://news.ifeng.*', 'http://www.cankaoxiaoxi.*',
-             r'http://news.xinhuanet.*', r'http://news.cctv.*']
+ALLOW_URL = [r'http://news.qq.com/a/\d+/.*?', r'http://news.sina.*', r'http://news.sohu.com/\d+/.*?',
+             r'http://news.ifeng.*', r'http://news.xinhuanet.*', r'http://news.cctv.*']
 
 
 # 用正则表达式设置不跟进哪些从页面中提取的链接

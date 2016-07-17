@@ -21,6 +21,9 @@ class FilterSamePage(object):
     """
     在爬取过程中发现会爬取到内容一样的页面,区别URL相似&下方评论不同.造成重复爬取.
     需要处理防止多次解析一样的内容.
+
+    这个解办法不算特别好 如果抓取url有比较特定标示可以参考
+    http://stackoverflow.com/questions/12553117/how-to-filter-duplicate-requests-based-on-url-in-scrapy
     """
 
     # 页面一般是连续抓取,只需判断与上一条url末端数字大小.
@@ -88,7 +91,7 @@ class NamecrawlerspiderPipeline(object):
             # print '数据未通过'
             raise DropItem(u'Missing article from {0:s}'.format(item['url']))
         elif len(item['date']) <= 6:
-            # logging.warning(u'the date from {} maybe wrong'.format(item['url']))
+            logger.warning(u'wrong date from {0:s}'.format(item['url']))
             raise DropItem(u'wrong date from {0:s}'.format(item['url']))
         else:
             for article in item['article']:
