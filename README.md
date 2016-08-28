@@ -22,12 +22,24 @@ OS X安装中出现问题可以参考[安装Scrapy](https://segmentfault.com/n/1
 	root=usr/home/HanLP/
 为data的父目录即可,比如data目录是`/Users/hankcs/Documents/data`,那么`root=/Users/hankcs/Documents/`
 
+####安装flask(可选)
+	pip install falsk
+
 ####安装mongodb
 前往官方主页下载<http://www.mongodb.org/downloads>
 
 项目使用mongodb的默认localhost和端口,如果需要修改相关参数设置,可以在settings中修改
 
 # 运行项目
-在项目Spider目录下,使用命令行输入
+在项目Spider目录下,使用命令行输入,然后可以在相关提示下操作
 
-	scrapy crawl tecent
+	python main.py
+
+同时项目自带了一个简单的restful api(需安装flask),命令行中在项目目录下
+
+	python app.py
+
+1. http://127.0.0.1:5000/count 会返回数据库的数据.
+2. http://127.0.0.1:5000/api/v1.0/peoples/数字a/数字b 会返回数据库中第a~b条之间的所有数据
+3. http://127.0.0.1:5000/api/v1.0/people/名字  会在数据库中查到该名字.成功则返回数据,失败会返回400
+4. http://127.0.0.1:5000/api/v1.0/people/query  此接口需要用post方法.传递一个包含'name'字段的json. 若名字存在会返回{'name.exit': True}.名字不存在则会用程序识别是否为人名.是则加进数据库.

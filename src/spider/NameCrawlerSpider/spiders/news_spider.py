@@ -35,7 +35,8 @@ class NewsSpider(CrawlSpider):
         Rule(LinkExtractor(allow=allow_url, deny=deny_url), callback='parse_news_item', follow=True),
 
         # 这行留着添加新网站时去掉注释并注释上一个Rule方便在运行时观察测试
-        # Rule(LinkExtractor(allow=(r'http://news.qq.com/a/\d+/.*?')), callback='parse_news_item', follow=True),
+        # Rule(LinkExtractor(allow=r'http://news.cctv.com/\d+/\d{2}/\d{2}/.*?'), callback='parse_news_item',
+        #      follow=True),
     ]
 
     logging.basicConfig(level=logging.DEBUG,
@@ -89,7 +90,6 @@ class NewsSpider(CrawlSpider):
             else:
                 if not time_use_default:
                     item['date'] = 'none'
-
 
             item['title'] = response.selector.xpath('//title/text()').extract()
 

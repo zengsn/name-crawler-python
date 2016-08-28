@@ -13,7 +13,7 @@ BOT_NAME = 'NameCrawlerSpider'
 
 SPIDER_MODULES = ['NameCrawlerSpider.spiders']
 NEWSPIDER_MODULE = 'NameCrawlerSpider.spiders'
-# JOBDIR='crawls/spider'
+JOBDIR='crawls/spider'
 
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
@@ -25,7 +25,7 @@ NEWSPIDER_MODULE = 'NameCrawlerSpider.spiders'
 # Configure a delay for requests for the same website (default: 0)
 # See http://scrapy.readthedocs.org/en/latest/topics/settings.html#download-delay
 # See also autothrottle settings and docs
-# DOWNLOAD_DELAY=6
+# DOWNLOAD_DELAY = 10
 # The download delay setting will honor only one of:
 # CONCURRENT_REQUESTS_PER_DOMAIN=16
 # CONCURRENT_REQUESTS_PER_IP=16
@@ -71,7 +71,7 @@ DOWNLOAD_TIMEOUT = 10
 # See http://scrapy.readthedocs.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
 
-    'NameCrawlerSpider.pipelines.FilterSamePage': 299,
+    # 'NameCrawlerSpider.pipelines.FilterSamePage': 299,
     'NameCrawlerSpider.pipelines.NamecrawlerspiderPipeline': 300,
 }
 
@@ -116,20 +116,21 @@ MONGODB_COLLECTION = 'data'
 # spider设置
 
 ALLOWED_DOMAINS = ["news.qq.com", "news.sina.com.cn",
-                  'news.sohu.com', 'news.ifeng.com', 'news.xinhuanet.com', ''
-                  ]
+                   'news.sohu.com', 'news.ifeng.com', 'news.xinhuanet.com', 'news.cctv.com'
+                   ]
 
 START_URLS = ["http://news.qq.com/", "http://news.sina.com.cn/",
               "http://news.sohu.com", 'http://news.ifeng.com', "http://www.xinhuanet.com", "http://news.cctv.com",
               ]
 
 # 用正则表达式设置跟进哪些从页面中提取的链接
-ALLOW_URL = [r'http://news.qq.com/a/\d+/.*?', r'http://news.sina.*', r'http://news.sohu.com/\d+/.*?',
-             r'http://news.ifeng.*', r'http://news.xinhuanet.*', r'http://news.cctv.*']
-
+ALLOW_URL = [r'http://news.qq.com/a/\d+/.*?', r'http://news.sina.com.cn/\w/\w{2}/[\d-]+/.*?',
+             r'http://news.sohu.com/\d{8}/.*?',
+             r'http://news.ifeng.com/a/\d+/.*?', r'http://news.xinhuanet.com/\w+/[\d-]+/\d{2}/.*?',
+             r'http://news.cctv.com/\d+/\d{2}/\d{2}/.*?']
 
 # 用正则表达式设置不跟进哪些从页面中提取的链接
-DENY_URL = [r'http://news.qq.com/original.*', r'http://.*shipin.*', r'http://.*video.*']
+DENY_URL = [r'http://news.qq.com/original.*', r'http://.*shipin.*', r'http://.*video.*', r'.*english.*']
 
 # 自定义从页面中提取时间. 格式与DATE_RE相同
 # 会优先检测这里
@@ -144,4 +145,10 @@ DATE_RE = {
     'xinhuanet': r'/([\d-]+)/(\d+)/',
     'cctv': r'/([\d-]+)/(\d+)/(\d+)/',
     'jianshu': r'([\d.]+)\s[\d:]+',
+}
+
+# 提取名字的过滤
+PROCESS_RULE = {
+    'name': r'(地|—|一|各|在|以|则|的|说|裔|岛|有|人|系|里|将|才|称|最|某|和|才|是|姓|要|外|也|都|吧|以|从|又|对|并|一位|一片|那年|坦克|书记|先生|女士|大妈|主任|主席|经理|总理|老板|同学|警官|全国|小编|师傅|小姐|男士|学院|披萨|海空|马航|马里|军方|空军|忠诚|陆军|总|华盛顿)',
+    'address': r'(不|王子|院|地|的|局|街道|车|阿拉伯|芝加哥|星|洲|小区|天台|科隆|苏联|捷克|尼斯|伊斯兰|华盛顿|拉斯|程序|巴黎|纽约|伊拉克|以色列|多国|学院|洋|餐厅|非|瑞典|伊朗|医生|柬埔寨|马里|缅甸|希腊|德州|洋|队|防|市场|学院|西方|叙利亚|伊朗|澳大利亚|越南|波斯|乌克兰|朝鲜|开罗|韩国|白宫|美|日|菲律宾|法|土耳其|欧|意|俄|耶路撒冷|巴勒斯坦|德国|英国|比利时|阿富汗|巴基斯坦|莫斯科|泰国|苏格拉|埃及|加拿大|墨西哥|印度|南海|个|医院|夏天|政府)'
 }

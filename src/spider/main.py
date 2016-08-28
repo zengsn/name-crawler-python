@@ -39,9 +39,12 @@ if __name__ == '__main__':
     option = raw_input('setting or runspider or ,mongoexport: ')
     while (option != 'q'):
         if option == 'setting':
-            setting_option = raw_input('cat or vim to show & edit spider settings: \n>>>')
+            setting_option = raw_input('cat or vim to show & edit spider settings, q to quit(): \n>>>')
             if setting_option.lower() in ('vim', 'cat'):
                 subprocess.call(setting(setting_option), shell=True)
+            elif setting_option.lower() == 'q':
+                option = ''
+                continue
 
         elif option == 'runspider':
             print "now show the spider list"
@@ -50,8 +53,15 @@ if __name__ == '__main__':
             subprocess.call(runspider(spidername), shell=True)
 
         elif option == 'mongoexport':
+            type = raw_input('json or csv?: \n>>>')
+            if type.lower() == 'csv':
+                field = raw_input('please input fileds. example "name,records,search_count": \n>>>')
+            if not field:
+                print 'no fileds!'
+                option = ''
+                continue
             filename = raw_input('please input finename or dir/filename: \n>>>')
-            subprocess.call(mongoexport(out=filename), shell=True)
+            subprocess.call(mongoexport(out=filename, type=type, fields=field), shell=True)
         option = raw_input('\n what do you want do next? ("q" to quit) \n>>>')
 
     print 'bye'

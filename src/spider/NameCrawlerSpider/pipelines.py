@@ -44,7 +44,7 @@ class FilterSamePage(object):
                 FilterSamePage._new_number = result[0]
                 FilterSamePage._last_or_new = True
 
-            if abs(int(FilterSamePage._last_number) - int(FilterSamePage._new_number)) < 100:
+            if abs(int(FilterSamePage._last_number) - int(FilterSamePage._new_number)) < 300:
                 # 可能相似页面
                 raise DropItem('the page already has crawled')
             else:
@@ -57,7 +57,7 @@ class NamecrawlerspiderPipeline(object):
     def __init__(self):
         self.data_result = []
         # 获取Hanlp目录下文件与配置
-        filename = self.getfile()
+        filename = getfile()
         if not isinstance(filename, str):
             logging.warning('the Hanlp file is not exist')
         jvm_path = '-Djava.class.path=' + os.getcwd() + '/HanLP/' + filename + ':' + os.getcwd() + '/HanLP'
@@ -68,6 +68,7 @@ class NamecrawlerspiderPipeline(object):
         db = client[settings['MONGODB_DB']]
         # 获取数据库的collection(类似别的数据库中的'表')
         self.collection = db[settings['MONGODB_COLLECTION']]
+        self.collection.ensure_index('name', unique=True, sparse=True)
 
         logging.basicConfig(level=logging.DEBUG,
                             format='%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s',
@@ -131,11 +132,11 @@ class NamecrawlerspiderPipeline(object):
     def close_spider(self, spider):
         shutdownJVM()
 
-    def getfile(self):
-        allfiles = os.listdir(os.getcwd() + '/HanLp')
-        r = re.compile(r'hanlp[-\d.]+jar')
-        for f in allfiles:
-            has_file = r.match(f)
-            if has_file:
-                return has_file.group()
-        return None
+def getfile():
+    allfiles = os.listdir(os.getcwd() + '/HanLp')
+    r = re.compile(r'hanlp[-\d.]+jar')
+    for f in allfiles:
+        has_file = r.match(f)
+        if has_file:
+            return has_file.group()
+    return None
