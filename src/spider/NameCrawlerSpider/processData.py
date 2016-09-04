@@ -4,7 +4,7 @@ import os
 import traceback
 from jpype import *
 from scrapy.conf import settings
-from pipelines import getfile
+import pipelines
 
 
 
@@ -61,7 +61,7 @@ class ProcessData(object):
     def is_name(self, name):
         try:
             # 初始化Hanlp
-            filename = getfile()
+            filename = pipelines.getfile()
             jvm_path = '-Djava.class.path=' + os.getcwd() + '/HanLP/' + filename + ':' + os.getcwd() + '/HanLP'
             if not isJVMStarted():
                 startJVM(getDefaultJVMPath(), jvm_path, "-Xms1g", "-Xmx1g")
@@ -81,6 +81,8 @@ class ProcessData(object):
                 nameFilter = self.name_filter_rule.search(hasName.group().strip())
                 if nameFilter:
                     return False
+                # 处理时候字符编码为utf-8,同时一个汉字占3个字符.当名字在3个汉字以内时检查首字是否在百家姓里面.
+                # 当名字为4个汉字时,检查前2个是否为复姓,其他的当舍弃处理
                 elif 3 < len(hasName.group().strip()) <= 9:
                     if hasName.group().strip()[:3] not in FIRSTNAME or \
                                     hasName.group().strip()[:3] == hasName.group().strip()[3:6]:

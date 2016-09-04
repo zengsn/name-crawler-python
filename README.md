@@ -7,11 +7,6 @@ Chinese name crawler written by Python
 ####安装Java&Jpype
   参考 [Python调用自然语言处理包HanLP](http://www.hankcs.com/nlp/python-calls-hanlp.html)
 
-####安装scrapy
-	pip install scray
-
-OS X安装中出现问题可以参考[安装Scrapy](https://segmentfault.com/n/1330000003944169)
-
 ####下载HanLP
 
 下载配置版&data:
@@ -21,6 +16,21 @@ OS X安装中出现问题可以参考[安装Scrapy](https://segmentfault.com/n/1
 
 	root=usr/home/HanLP/
 为data的父目录即可,比如data目录是`/Users/hankcs/Documents/data`,那么`root=/Users/hankcs/Documents/`
+
+####安装scrapy
+	pip install scray
+
+OS X安装中出现问题可以参考[安装Scrapy](https://segmentfault.com/n/1330000003944169)
+
+####安装readability
+用于正文析取
+
+	pip install readability-lxml
+
+####安装pymongo
+python下操作mongo数据库
+
+	pip install pymongo
 
 ####安装flask(可选)
 	pip install falsk

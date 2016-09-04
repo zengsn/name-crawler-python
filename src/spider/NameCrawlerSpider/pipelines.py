@@ -6,51 +6,65 @@
 # See: http://doc.scrapy.org/en/latest/topics/item-pipeline.html
 import pymongo
 
-import os
-import re
 import logging
 from logging.handlers import RotatingFileHandler
 from scrapy.exceptions import DropItem
 from scrapy.conf import settings
 from processData import *
+import sys
+
+reload(sys)
+sys.setdefaultencoding('utf8')
+
 
 logger = logging.getLogger(__name__)
 
 
-class FilterSamePage(object):
-    """
-    在爬取过程中发现会爬取到内容一样的页面,区别URL相似&下方评论不同.造成重复爬取.
-    需要处理防止多次解析一样的内容.
+def getfile():
+    allfiles = os.listdir(os.getcwd() + '/HanLp')
+    r = re.compile(r'hanlp[-\d.]+jar')
+    for f in allfiles:
+        has_file = r.match(f)
+        if has_file:
+            return has_file.group()
+    return None
 
-    这个解办法不算特别好 如果抓取url有比较特定标示可以参考
-    http://stackoverflow.com/questions/12553117/how-to-filter-duplicate-requests-based-on-url-in-scrapy
-    """
 
-    # 页面一般是连续抓取,只需判断与上一条url末端数字大小.
-    _last_number = 0
-    _new_number = 0
-    # True时修改last_number,False时修改new_number
-    _last_or_new = True
 
-    def process_item(self, item, spider):
-
-        result = re.findall(r'\d+', item['url'].split('/')[-1])
-        if len(result) > 0:
-            if FilterSamePage._last_or_new:
-                FilterSamePage._last_number = result[0]
-                FilterSamePage._last_or_new = False
-
-            elif not FilterSamePage._last_or_new:
-                FilterSamePage._new_number = result[0]
-                FilterSamePage._last_or_new = True
-
-            if abs(int(FilterSamePage._last_number) - int(FilterSamePage._new_number)) < 300:
-                # 可能相似页面
-                raise DropItem('the page already has crawled')
-            else:
-                return item
-        else:
-            return item
+# class FilterSamePage(object):
+#     """
+#     在爬取过程中发现会爬取到内容一样的页面,区别URL相似&下方评论不同.造成重复爬取.
+#     需要处理防止多次解析一样的内容.
+#
+#     这个解办法不算特别好 如果抓取url有比较特定标示可以参考
+#     http://stackoverflow.com/questions/12553117/how-to-filter-duplicate-requests-based-on-url-in-scrapy
+#     """
+#
+#     # 页面一般是连续抓取,只需判断与上一条url末端数字大小.
+#     _last_number = 0
+#     _new_number = 0
+#     # True时修改last_number,False时修改new_number
+#     _last_or_new = True
+#
+#     def process_item(self, item, spider):
+#
+#         result = re.findall(r'\d+', item['url'].split('/')[-1])
+#         if len(result) > 0:
+#             if FilterSamePage._last_or_new:
+#                 FilterSamePage._last_number = result[0]
+#                 FilterSamePage._last_or_new = False
+#
+#             elif not FilterSamePage._last_or_new:
+#                 FilterSamePage._new_number = result[0]
+#                 FilterSamePage._last_or_new = True
+#
+#             if abs(int(FilterSamePage._last_number) - int(FilterSamePage._new_number)) < 300:
+#                 # 可能相似页面
+#                 raise DropItem('the page already has crawled')
+#             else:
+#                 return item
+#         else:
+#             return item
 
 
 class NamecrawlerspiderPipeline(object):
@@ -132,11 +146,5 @@ class NamecrawlerspiderPipeline(object):
     def close_spider(self, spider):
         shutdownJVM()
 
-def getfile():
-    allfiles = os.listdir(os.getcwd() + '/HanLp')
-    r = re.compile(r'hanlp[-\d.]+jar')
-    for f in allfiles:
-        has_file = r.match(f)
-        if has_file:
-            return has_file.group()
-    return None
+
+
