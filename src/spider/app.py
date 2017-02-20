@@ -15,7 +15,7 @@ app = Flask(__name__)
 
 # auth = HTTPBasicAuth()
 
-client = client = pymongo.MongoClient(settings['MONGODB_URI'])
+client = pymongo.MongoClient(settings['MONGODB_URI'])
 db = client[settings['MONGODB_DB']]
 collection = db[settings['MONGODB_COLLECTION']]
 MAX = collection.find().count()
@@ -49,7 +49,7 @@ def get_peoples(start, stop):
     data = []
     for people in peoples:
         data.append(people)
-    return json.dumps(data)
+    return json.dumps(data, ensure_ascii=False)
 
 
 @app.route('/api/v1.0/people/<name>', methods=['GET'])

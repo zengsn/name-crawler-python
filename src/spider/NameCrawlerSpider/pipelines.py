@@ -133,7 +133,17 @@ class NamecrawlerspiderPipeline(object):
                     result['records']['date'] = item['date']
                     result['records']['url'] = item['url']
                     result['records']['from'] = item['data_from']
-                    self.collection.insert(result)
+                    # 检查数据库是否有这个人,如果没有就直接插入数据.
+                    people = self.collection.find_one({'name':result['name']})
+                    if not people:
+                        print '*'*16
+                        print '新的人~~~'
+                        self.collection.insert(result)
+                    else:
+                        # 如果有的话 先把已存在的人数据取出来,更新records的值
+                        newrecords = people['records'] if type(people['records']) == list else [people['records']]
+                        newrecords.append(result['records'])
+                        self.collection.update_one({'name': people['name']}, {'$set': {'records': newrecords}})
                 print ' %s 数据通过管道 ' % item['date']
                 message = "Item wrote to MongoDB database {0} {1}".format(settings['MONGODB_DB'],
                                                                           settings['MONGODB_COLLECTION'])
