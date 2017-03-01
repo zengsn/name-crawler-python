@@ -17,20 +17,11 @@ Chinese name crawler written by Python
 	root=usr/home/HanLP/
 为data的父目录即可,比如data目录是`/Users/hankcs/Documents/data`,那么`root=/Users/hankcs/Documents/`
 
-####安装scrapy
-	pip install scray
+
+####安装依赖
+    ``pip install -r require.txt``
 
 OS X安装中出现问题可以参考[安装Scrapy](https://segmentfault.com/n/1330000003944169)
-
-####安装readability
-用于正文析取
-
-	pip install readability-lxml
-
-####安装pymongo
-python下操作mongo数据库
-
-	pip install pymongo
 
 ####安装flask(可选)
 	pip install falsk
@@ -53,3 +44,7 @@ python下操作mongo数据库
 2. http://127.0.0.1:5000/api/v1.0/peoples/数字a/数字b 会返回数据库中第a~b条之间的所有数据
 3. http://127.0.0.1:5000/api/v1.0/people/名字  会在数据库中查到该名字.成功则返回数据,失败会返回400
 4. http://127.0.0.1:5000/api/v1.0/people/query  此接口需要用post方法.传递一个包含'name'字段的json. 若名字存在会返回{'name.exit': True}.名字不存在则会用程序识别是否为人名.是则加进数据库.
+
+#数据演示
+
+[NameCrawler Spider](http://name.chata.cn/name.chata.cn)
