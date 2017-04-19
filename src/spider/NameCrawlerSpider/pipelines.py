@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 
 def getfile():
-    allfiles = os.listdir(os.getcwd() + '/HanLp')
+    allfiles = os.listdir(os.getcwd() + '/HanLP')
     r = re.compile(r'hanlp[-\d.]+jar')
     for f in allfiles:
         has_file = r.match(f)
