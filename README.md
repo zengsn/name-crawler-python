@@ -4,10 +4,13 @@ Chinese name crawler written by Python
 
 # 安装运行环境
 
-####安装Java&Jpype
+##安装Java&Jpype
   参考 [Python调用自然语言处理包HanLP](http://www.hankcs.com/nlp/python-calls-hanlp.html)
+  装好java后如果找不到java安装目录可以使用`update-alternatives --config java`来查看。
+  配置bash里的JAVA_HOME环境变量再装Jpype。
+  如果安装过程中报错jni.h not found则把java/include中的jni.h和jni_md.h复制一份到jpype/src/native/common/include
 
-####下载HanLP
+##下载HanLP
 
 下载配置版&data:
 <https://github.com/hankcs/HanLP/releases>
@@ -18,15 +21,15 @@ Chinese name crawler written by Python
 为data的父目录即可,比如data目录是`/Users/hankcs/Documents/data`,那么`root=/Users/hankcs/Documents/`
 
 
-####安装依赖
+##安装依赖
     ``pip install -r require.txt``
 
 OS X安装中出现问题可以参考[安装Scrapy](https://segmentfault.com/n/1330000003944169)
 
-####安装flask(可选)
+##安装flask(可选)
 	pip install falsk
 
-####安装mongodb
+##安装mongodb
 前往官方主页下载<http://www.mongodb.org/downloads>
 
 项目使用mongodb的默认localhost和端口,如果需要修改相关参数设置,可以在settings中修改

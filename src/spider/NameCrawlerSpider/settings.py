@@ -29,7 +29,7 @@ JOBDIR='crawls/spider'
 # See also autothrottle settings and docs
 
 # 下载延时
-# DOWNLOAD_DELAY = 10
+DOWNLOAD_DELAY = 5
 
 # The download delay setting will honor only one of:
 # CONCURRENT_REQUESTS_PER_DOMAIN=16
@@ -117,6 +117,10 @@ USER_AGENT_LIST = [
 MONGODB_URI = 'mongodb://localhost:27017'
 MONGODB_DB = 'SpiderData'
 MONGODB_COLLECTION = 'data'
+# 姓，拆开的名字，没拆开的名字分别存入不同数据库计数
+MONGODB_FIRST_COL = 'FirstName'
+MONGODB_LAST_COL = 'LastName'
+MONGODB_FULL_LAST_COL = 'LastName2'
 
 # spider设置
 

@@ -29,43 +29,20 @@ def getfile():
             return has_file.group()
     return None
 
+# 检查是记录否唯一，不是插入，是则更新字段 插入拆开人名的时候使用
+def ensure_one_and_update(collection, record, name):
+    if not collection.find_one({record:name}):
+        collection.insert({record:name, 'count':1})
+    else:
+        collection.update_one({record:name}, {'$inc':{'count':1}})
+    return
 
-
-# class FilterSamePage(object):
-#     """
-#     在爬取过程中发现会爬取到内容一样的页面,区别URL相似&下方评论不同.造成重复爬取.
-#     需要处理防止多次解析一样的内容.
-#
-#     这个解办法不算特别好 如果抓取url有比较特定标示可以参考
-#     http://stackoverflow.com/questions/12553117/how-to-filter-duplicate-requests-based-on-url-in-scrapy
-#     """
-#
-#     # 页面一般是连续抓取,只需判断与上一条url末端数字大小.
-#     _last_number = 0
-#     _new_number = 0
-#     # True时修改last_number,False时修改new_number
-#     _last_or_new = True
-#
-#     def process_item(self, item, spider):
-#
-#         result = re.findall(r'\d+', item['url'].split('/')[-1])
-#         if len(result) > 0:
-#             if FilterSamePage._last_or_new:
-#                 FilterSamePage._last_number = result[0]
-#                 FilterSamePage._last_or_new = False
-#
-#             elif not FilterSamePage._last_or_new:
-#                 FilterSamePage._new_number = result[0]
-#                 FilterSamePage._last_or_new = True
-#
-#             if abs(int(FilterSamePage._last_number) - int(FilterSamePage._new_number)) < 300:
-#                 # 可能相似页面
-#                 raise DropItem('the page already has crawled')
-#             else:
-#                 return item
-#         else:
-#             return item
-
+def to_unicode(unicode_or_str):
+    if isinstance(unicode_or_str, str):
+        value = unicode_or_str.decode('utf-8')
+    else:
+        value = unicode_or_str
+    return value
 
 class NamecrawlerspiderPipeline(object):
     def __init__(self):
@@ -82,7 +59,14 @@ class NamecrawlerspiderPipeline(object):
         db = client[settings['MONGODB_DB']]
         # 获取数据库的collection(类似别的数据库中的'表')
         self.collection = db[settings['MONGODB_COLLECTION']]
+        self.first_col = db[settings['MONGODB_FIRST_COL']]
+        self.last_col = db[settings['MONGODB_LAST_COL']]
+        self.full_last_col = db[settings['MONGODB_FULL_LAST_COL']]
+
         self.collection.ensure_index('name', unique=True, sparse=True)
+        self.first_col.ensure_index('firstname', unique=True, sparse=True)
+        self.last_col.ensure_index('lastname', unique=True, sparse=True)
+        self.full_last_col.ensure_index('lastname2', unique=True, sparse=True)
 
         logging.basicConfig(level=logging.DEBUG,
                             format='%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s',
@@ -103,7 +87,6 @@ class NamecrawlerspiderPipeline(object):
         sentences = []
         # 如果article以及data不存在则丢弃,并输出到日志文件方便用户检查
         if len(item['article']) == 0:
-            # print '数据未通过'
             raise DropItem(u'Missing article from {0:s}'.format(item['url']))
         elif len(item['date']) <= 6:
             logger.warning(u'wrong date from {0:s}'.format(item['url']))
@@ -114,36 +97,58 @@ class NamecrawlerspiderPipeline(object):
                     paragraph = article.split(u'\u3002')
                     for p in paragraph:
                         sentences.append(p)
-                        # print p + '\n'
-                        # print '-'*16
                 else:
                     sentences.append(article.encode('utf-8'))
-
-            # print '这是句子'
-            # for i in sentences:
-            #     print i
 
             data = ProcessData(sentences)
             # 返回的是一个列表,里面每一项都是字典
             self.data_result = data.process_data()
-
             # 添加字典其余项并写进数据库
             try:
                 for result in self.data_result:
                     result['records']['date'] = item['date']
                     result['records']['url'] = item['url']
                     result['records']['from'] = item['data_from']
+                    result['name'] = to_unicode(result['name'])
                     # 检查数据库是否有这个人,如果没有就直接插入数据.
                     people = self.collection.find_one({'name':result['name']})
                     if not people:
-                        print '*'*16
-                        print '新的人~~~'
+                        result['records'] = result['records'] if isinstance(result['records'], list) else [result['records']]
+                        result['records_count'] = 1
                         self.collection.insert(result)
                     else:
                         # 如果有的话 先把已存在的人数据取出来,更新records的值
                         newrecords = people['records'] if type(people['records']) == list else [people['records']]
                         newrecords.append(result['records'])
-                        self.collection.update_one({'name': people['name']}, {'$set': {'records': newrecords}})
+                        self.collection.update_one({'name': people['name']}, {'$inc':{'records_count':1}, '$set': {'records': newrecords}})
+                    
+                    if len(result['name']) == 2:
+                        first_name = result['name'][0]
+                        last_name = result['name'][1]
+                        last_name2 = ''
+                        full_last_name = result['name'][1]
+                    elif len(result['name']) == 3:
+                        first_name = result['name'][0]
+                        last_name = result['name'][1]
+                        last_name2 = result['name'][2]
+                        full_last_name = result['name'][1:3]
+                    elif len(result['name']) == 4:
+                        first_name = result['name'][:2]
+                        last_name = result['name'][2]
+                        last_name = result['name'][3]
+                        full_last_name = result['name'][2:4]
+
+                    for count, col in enumerate([self.first_col, self.last_col, self.full_last_col]):
+                        if count == 0:
+                            ensure_one_and_update(col, 'FirstName', first_name)
+                        if count == 2:
+                            ensure_one_and_update(col, 'LastName2', full_last_name)
+                        else:
+                            if last_name:
+                                ensure_one_and_update(col, 'LastName', last_name)
+                            if last_name2:
+                                ensure_one_and_update(col, 'LastName', last_name2)
+
                 print ' %s 数据通过管道 ' % item['date']
                 message = "Item wrote to MongoDB database {0} {1}".format(settings['MONGODB_DB'],
                                                                           settings['MONGODB_COLLECTION'])
