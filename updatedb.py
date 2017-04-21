@@ -55,9 +55,9 @@ for data in DATE_COL.find():
     for count, col in enumerate([FIRST_COL, LAST_COL, FULL_LAST_COL]):
         if count == 0:
             ensure_one_and_update(col, 'FirstName', first_name)
-        if count == 2:
+        elif count == 2:
             ensure_one_and_update(col, 'LastName2', full_last_name)
-        else:
+        elif count == 1:
             if last_name:
                 ensure_one_and_update(col, 'LastName', last_name)
             if last_name2:
