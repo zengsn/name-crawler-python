@@ -29,7 +29,7 @@ JOBDIR='crawls/spider'
 # See also autothrottle settings and docs
 
 # 下载延时
-DOWNLOAD_DELAY = 5
+# DOWNLOAD_DELAY = 5
 
 # The download delay setting will honor only one of:
 # CONCURRENT_REQUESTS_PER_DOMAIN=16

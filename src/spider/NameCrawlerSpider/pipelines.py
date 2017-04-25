@@ -4,14 +4,15 @@
 #
 # Don't forget to add your pipeline to the ITEM_PIPELINES setting
 # See: http://doc.scrapy.org/en/latest/topics/item-pipeline.html
-import pymongo
-
+import sys
 import logging
+import pymongo
+import re
+
 from logging.handlers import RotatingFileHandler
 from scrapy.exceptions import DropItem
 from scrapy.conf import settings
 from processData import *
-import sys
 
 reload(sys)
 sys.setdefaultencoding('utf8')
@@ -68,6 +69,9 @@ class NamecrawlerspiderPipeline(object):
         self.last_col.ensure_index('lastname', unique=True, sparse=True)
         self.full_last_col.ensure_index('lastname2', unique=True, sparse=True)
 
+        # 名字只取中文部分
+        self.name_rule = re.compile(ur"[^\u4e00-\u9fa5]")
+
         logging.basicConfig(level=logging.DEBUG,
                             format='%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s',
                             datefmt='%a, %d %b %Y %H:%M:%S')
@@ -109,7 +113,7 @@ class NamecrawlerspiderPipeline(object):
                     result['records']['date'] = item['date']
                     result['records']['url'] = item['url']
                     result['records']['from'] = item['data_from']
-                    result['name'] = to_unicode(result['name'])
+                    result['name'] = self.name_rule.sub('',to_unicode(result['name']))
                     # 检查数据库是否有这个人,如果没有就直接插入数据.
                     people = self.collection.find_one({'name':result['name']})
                     if not people:
@@ -141,7 +145,7 @@ class NamecrawlerspiderPipeline(object):
                     for count, col in enumerate([self.first_col, self.last_col, self.full_last_col]):
                         if count == 0:
                             ensure_one_and_update(col, 'FirstName', first_name)
-                        if count == 2:
+                        elif count == 2:
                             ensure_one_and_update(col, 'LastName2', full_last_name)
                         else:
                             if last_name:
